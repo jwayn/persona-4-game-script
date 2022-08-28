@@ -30410,7 +30410,7 @@ function changePage(pageNum, withButton=false, scrollToTop=false) {
 
     // Update page state when user changes page with buttons
     if(withButton) {
-        url = `${window.location.protocol}//${window.location.pathname}?${queryParams.toString()}`;
+        url = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${queryParams.toString()}`;
         history.pushState(historyState, '', url);
     }
     
