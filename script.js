@@ -30379,9 +30379,6 @@ pageSearch.addEventListener("compositionupdate", event => {
 })
 
 window.addEventListener("scroll", event => {
-    console.log(window.scrollMaxY);
-    console.log("Scroll height: ", window.pageYOffset);
-
     if(window.scrollMaxY - window.pageYOffset < 200) {
         document.querySelector('.pagination-controls').classList.add("controls-show");
     } else {
