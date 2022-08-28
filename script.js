@@ -30465,7 +30465,7 @@ function showLines(currentLineArray) {
 function getSearchLines(searchTerm, characterName) {
     return scriptArray.filter(line => {
         return characterName ? line.text.includes(searchTerm) && line.name === characterName : line.text.includes(searchTerm);
-    })
+    });
 }
 
 function updateSearchResults(searchTerm, characterName) {
@@ -30481,12 +30481,13 @@ function updateSearchResults(searchTerm, characterName) {
     // render results on list
     lines.forEach(line => {
         // Highlight our searched terms
+        let newLine = {...line};
         const highlightedTerm = `<span class="search-highlighted">${searchTerm}</span>`;
-        if (line.text.includes(searchTerm)) {
-            line.text = line.text.replace(searchTerm, highlightedTerm);
+        if (newLine.text.includes(searchTerm)) {
+            newLine.text = newLine.text.replace(searchTerm, highlightedTerm);
         }
 
-        renderSearchResult(line);
+        renderSearchResult(newLine);
     })
 }
 
