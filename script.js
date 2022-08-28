@@ -4,27 +4,28 @@ const chars = {
     "堂島 遼太郎": "ryotaro_dojima.png",
     "堂島 菜々子": "nanako_dojima.png",
     "花村 陽介": "yosuke_hanamura.png",
+    "もう一人の陽介": "yosuke_hanamura_1.png",
     "里中 千枝": "chie_satonaka.png",
+    "もう一人の千枝": "chie_satonaka_1.png",
     "天城 雪子": "yukiko_amagi.png",
+    "もう一人の雪子": "yukiko_amagi_1.png",
     "諸岡 金四郎": "kinshiro_morooka.png",
     "山野 真由美": "mayumi_yamano.png",
     "久保 美津雄": "mitsuo_kubo.png",
+    "もう一人の美津雄": "mitsuo_kubo_1.png",
     "足立 透": "tohru_adachi.png",
+    "もう一人の透": "tohru_adachi_1.png",
     "小西 早紀": "saki_konishi.png",
     "クマ": "teddie.png",
-    "もう一人の陽介": "yosuke_hanamura_1.png",
-    "もう一人の千枝": "chie_satonaka_1.png",
-    "もう一人の雪子": "yukiko_amagi_1.png",
+    "もう一人のクマ": "teddie_1.png",
     "巽 完二": "kanji_tatsumi.png",
-    "白鐘 直斗": "naoto_shirogane.png",
     "もう一人の完二": "kanji_tatsumi_1.png",
+    "白鐘 直斗": "naoto_shirogane.png",
     "大谷 花子": "hanaka_ohtani.png",
     "久慈川 りせ": "rise_kujikawa.png",
     "もう一人のりせ": "rise_kujikawa_1.png",
-    "もう一人のクマ": "teddie_1.png",
     "柏木 典子": "noriko_kashiwagi.png",
-    "もう一人の美津雄": "mitsuo_kubo_1.png",
-    "もう一人の直斗": "naoto_shirogane_`.png",
+    "もう一人の直斗": "naoto_shirogane_1.png",
     "生田目 太郎": "taro_namatame.png",
     "もう一人の生田目": "taro_namatame_1.png",
     "海老原 あい": "ai_ebihara.png",
@@ -37,7 +38,6 @@ const chars = {
     "小沢 結実": "yumi_ozawa.png",
     "松永 綾音": "ayane_matsunaga.png",
     "南 絵里": "eri_minami.png",
-    "もう一人の透": "tohru_adachi_1.png",
     "キツネ": "kitsune.png",
 }
 
@@ -30251,6 +30251,7 @@ let currentPage = 1;
 let pageSize = 10;
 let historyState = {};
 let initial = false;
+let currentTotalSearchResults = []
 
 // Check for query parameters
 let queryParams = new URLSearchParams(window.location.search);
@@ -30474,8 +30475,9 @@ function updateSearchResults(searchTerm, characterName) {
 
     // get new results
     const lines = getSearchLines(searchTerm, characterName);
+    currentTotalSearchResults = lines;
 
-    // cap results to limit
+    // cap results to limit by removing everything after the limit
     lines.splice(searchResultsLimit, lines.length);
     
     // render results on list
