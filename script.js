@@ -30240,12 +30240,14 @@ const script = `
 堂島 遼太郎|お前がいる間…か。 不思議な縁とでも言うべきか…
 堂島 遼太郎|ま、ほら、行った行った。 俺たちも帰るから。
 `
+// TODO: 
+// Create options overlay for setting
+// search results limit, pageSize, anki deck name, anki model name, etc
 
 const pageInput = document.getElementById("pageNumInput");
 const pageNumLeft = document.getElementById("btnPageLeft");
 const pageNumRight = document.getElementById("btnPageRight");
 const pageSearch = document.getElementById("textSearch");
-const searchResultsLimit = 10;
 const ankiConnectURL = "http://localhost:8765";
 const ankiDeckName = "Persona 4";
 const ankiModelName = "Persona4Card"
@@ -30253,6 +30255,8 @@ const ankiModelName = "Persona4Card"
 let currentPage = 1;
 let pageSize = 10;
 let historyState = {};
+let searchResultsLimit = 10;
+
 let initial = false;
 let isAnkiConnectConfigured = false;
 
@@ -30475,9 +30479,6 @@ function showLines(currentLineArray) {
                     mainText.appendChild(ankiButton);
                     ankiButton.addEventListener('click', event => {
                         event.stopPropagation();
-                        console.log("Button clicked");
-                        console.log(line.text)
-                        console.log(currentlySelectedText);
                         createAnkiCard(currentlySelectedText, line.text);
                     });
                 }
@@ -30589,6 +30590,9 @@ async function doesAnkiDeckExist() {
         return decks.result.includes(ankiDeckName) ? true : false;
     } else {
         isAnkiConnectConfigured = false;
+        // TODO:
+        // popup anki information here
+        // for how to add domain to CORS list in ankiconnect settings
         return false;
     }
 }
@@ -30690,9 +30694,13 @@ async function createAnkiModel() {
 }
 
 async function createAnkiCard(word, sentence) {
-    if(!doesAnkiDeckExist()) createAnkiDeck();
-    if(!doesAnkiModelExist()) createAnkiModel();
-    if (!isAnkiConnectConfigured) return;
+    // TODO: Allow for custom anki fields
+    if (!doesAnkiDeckExist()) {
+        createAnkiDeck();
+    }
+    if (!doesAnkiModelExist()) {
+        createAnkiModel();
+    }
     sentence = sentence.replace(word, `<b>${word}</b>`);
     const response = await fetch(ankiConnectURL, {
         method: "POST",
