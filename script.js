@@ -30586,9 +30586,11 @@ async function getAnkiPermissions() {
         })
     });
     if (response.ok) {
-        const jsonRes = await rawDecks.json();
+        const jsonRes = await response.json();
 
-        if (jsonRes.result.permission === "granted" && jsonRes.result.requireApiKey === false) {
+        console.log("Permission granted: ", jsonRes.result.permission === "granted")
+        console.log("API key required: ", !jsonRes.result.requireApiKey)
+        if (jsonRes.result.permission === "granted" && !jsonRes.result.requireApiKey) {
             ankiPermissionGranted = true;
             localStorage.setItem('ankiPermissionGranted', true);
             isAnkiConnectConfigured = true;
@@ -30600,9 +30602,6 @@ async function getAnkiPermissions() {
 }
 
 async function doesAnkiDeckExist() {
-    if (!ankiPermissionGranted) {
-        getAnkiPermissions();
-    }
     const rawDecks = await fetch(ankiConnectURL, {
         method: "POST",
         mode: "cors",
@@ -30624,7 +30623,6 @@ async function doesAnkiDeckExist() {
 }
 
 async function createAnkiDeck() {
-    if (!isAnkiConnectConfigured) return false;
     const response = await fetch(ankiConnectURL, {
         method: "POST",
         mode: "cors",
@@ -30661,7 +30659,6 @@ async function doesAnkiModelExist() {
 }
 
 async function createAnkiModel() {
-    if (!isAnkiConnectConfigured) return;
     const response = await fetch(ankiConnectURL, {
         method: "POST",
         mode: "cors",
@@ -30720,11 +30717,15 @@ async function createAnkiModel() {
 }
 
 async function createAnkiCard(word, sentence) {
+    if (!ankiPermissionGranted) {
+        getAnkiPermissions();
+    }
     // TODO: Allow for custom anki fields
-    if (!doesAnkiDeckExist()) {
+    if (!await doesAnkiDeckExist()) {
+        console.log("Anki deck doesn't exist!");
         createAnkiDeck();
     }
-    if (!doesAnkiModelExist()) {
+    if (!await doesAnkiModelExist()) {
         createAnkiModel();
     }
     sentence = sentence.replace(word, `<b>${word}</b>`);
