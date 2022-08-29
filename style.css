@@ -27,11 +27,11 @@ body, html {
     width: 100vw;
     min-height: 100vh;
     box-sizing: border-box;
-    background-attachment: fixed;
 }
 
 html {
     background: radial-gradient(var(--bg-color),var(--bg-color-2));
+    background-attachment: fixed;
 }
 
 body {
@@ -430,11 +430,9 @@ body {
     .char-image img {
         width: 300px;
     }
+}
 
-    .anki-connect-dialogue {
-        display: none !important;
-    }
-
+@media screen and (max-width: 650px) {
     .anki-button {
         display: none;
     }
