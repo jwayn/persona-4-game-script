@@ -30246,12 +30246,15 @@ const pageNumLeft = document.getElementById("btnPageLeft");
 const pageNumRight = document.getElementById("btnPageRight");
 const pageSearch = document.getElementById("textSearch");
 const searchResultsLimit = 10;
+const ankiConnectURL = "http://localhost:8765";
+const ankiDeckName = "Persona 4";
+const ankiModelName = "Persona4Card"
 
 let currentPage = 1;
 let pageSize = 10;
 let historyState = {};
 let initial = false;
-let currentTotalSearchResults = []
+let isAnkiConnectConfigured = false;
 
 // Check for query parameters
 let queryParams = new URLSearchParams(window.location.search);
@@ -30453,6 +30456,33 @@ function showLines(currentLineArray) {
         const charText = document.createElement("div");
         charText.classList.add("char-text");
         charText.innerHTML = line.text;
+        textContainer.addEventListener('mouseup', event => {
+            event.stopPropagation();
+            if (event.target.tagName !== "BUTTON") {
+                let ankiButtons = [...document.querySelectorAll('.anki-button')];
+                if (ankiButtons.length > 0) {
+                    ankiButtons.forEach(ankiButton => {
+                        ankiButton.remove();
+                    })
+                }
+                const currentlySelectedText = window.getSelection().toString();
+
+                // Create button for anki connect
+                if (currentlySelectedText) {
+                    const ankiButton = document.createElement("button");
+                    ankiButton.classList.add("anki-button");
+                    ankiButton.innerHTML = "Create Anki Card";
+                    mainText.appendChild(ankiButton);
+                    ankiButton.addEventListener('click', event => {
+                        event.stopPropagation();
+                        console.log("Button clicked");
+                        console.log(line.text)
+                        console.log(currentlySelectedText);
+                        createAnkiCard(currentlySelectedText, line.text);
+                    });
+                }
+            }
+        })
         mainText.appendChild(charText);
     
         // Add main text container to overall container
@@ -30475,7 +30505,6 @@ function updateSearchResults(searchTerm, characterName) {
 
     // get new results
     const lines = getSearchLines(searchTerm, characterName);
-    currentTotalSearchResults = lines;
 
     // cap results to limit by removing everything after the limit
     lines.splice(searchResultsLimit, lines.length);
@@ -30543,4 +30572,152 @@ function getPageNum(lineId) {
 function clearSearchResults() {
     document.getElementById("searchResults").innerHTML = "";
     document.getElementById("searchResults").style.opacity = 0;
+}
+
+async function doesAnkiDeckExist() {
+    const rawDecks = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "deckNames",
+            "version": 6
+        })
+    });
+    if (rawDecks.ok) {
+        const decks = await rawDecks.json();
+        isAnkiConnectConfigured = true;
+        return decks.result.includes(ankiDeckName) ? true : false;
+    } else {
+        isAnkiConnectConfigured = false;
+        return false;
+    }
+}
+
+async function createAnkiDeck() {
+    if (!isAnkiConnectConfigured) return false;
+    const response = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "createDeck",
+            "version": 6,
+            "params": {
+                "deck": ankiDeckName
+            }
+        })
+    });
+    if (response.ok) {
+        return true;
+    } else {
+        return false
+    }
+}
+
+async function doesAnkiModelExist() {
+    const rawModels = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "modelNames",
+            "version": 6
+        })
+    });
+    if (rawModels.ok) {
+        const models = await rawModels.json();
+        return models.result.includes(ankiModelName) ? true : false;
+    } else {
+        return false;
+    }
+}
+
+async function createAnkiModel() {
+    if (!isAnkiConnectConfigured) return;
+    const response = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "createModel",
+            "version": 6,
+            "params": {
+                "modelName": ankiModelName,
+                "inOrderFields": ["TargetWord", "Definition", "Sentence", "Translation"],
+                "isCloze": false,
+                "css": `
+                * {margin:0;padding:0;box-sizing:border-box;}
+                html {background:radial-gradient(#0A082D,#232055);width:100vw;height:100vh;}
+                body {color:white;padding:20px;display:flex;justify-content:center;background:none;}
+                .front {display:flex;flex-direction:column;align-items:center;max-width:600px;}
+                .front h1{font-size:48px;color:#FCE92E;border-radius:8px;padding:4px }
+                .front p{font-size:24px;}
+                .back{max-width:600px;}
+                .back .word{display:flex;flex-direction:column;align-items:center;max-width:100%;}
+                .back .word h1{font-size:48px;color:#FCE92E;}
+                .back .word h2{font-size:24px;font-weight:400;}
+                .back .definition{display:flex;flex-direction:column;align-items:center;margin-top:40px;}
+                .back .definition p:first-child{font-size:24px;}
+                .back .definition p:last-child{font-size:24px;}
+                `,
+                "cardTemplates": [
+                    {
+                        "Front": `
+                            <div class="front">
+                                <h1>{{TargetWord}}</h1>
+                                <p>{{Sentence}}</p>
+                            </div>
+                        `,
+                        "Back": `
+                        <div class="back">
+                            <div class="word">
+                                <h1>{{TargetWord}}</h1>
+                                <h2>{{Definition}}</h2>
+                            </div>
+                            <div class="definition">
+                                <p>{{Sentence}}</p>
+                                <p>{{Translation}}</p>
+                            </div>
+                        </div>
+                        `
+                    }
+                ]
+            }
+        })
+    });
+    if (response.ok) {
+        return true;
+    } else {
+        return false
+    }
+}
+
+async function createAnkiCard(word, sentence) {
+    if(!doesAnkiDeckExist()) createAnkiDeck();
+    if(!doesAnkiModelExist()) createAnkiModel();
+    if (!isAnkiConnectConfigured) return;
+    sentence = sentence.replace(word, `<b>${word}</b>`);
+    const response = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "guiAddCards",
+            "version": 6,
+            "params": {
+                "note": {
+                    "deckName": ankiDeckName,
+                    "modelName": ankiModelName,
+                    "fields": {
+                        "TargetWord": word,
+                        "Sentence": sentence
+                    },
+                    "tags": [
+                      "persona4"
+                    ]
+                }
+            }
+        })
+    });
+    if (response.ok) {
+        return true;
+    } else {
+        return false
+    }
 }

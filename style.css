@@ -11,6 +11,7 @@
     --bg-tile-height: calc(var(--text-container-height) + 10px);
     --char-name-color: #58300D;
     --bg-color: #0A082D;
+    --bg-color-2: #232055;
 }
 
 * {
@@ -26,12 +27,18 @@ body, html {
     width: 100vw;
     min-height: 100vh;
     box-sizing: border-box;
-    background-color: var(--bg-color);
+    background: radial-gradient(var(--bg-color),var(--bg-color-2));
+    background-attachment: fixed;
 }
 
 body {
     position: relative;
     z-index: -5;
+}
+
+::selection {
+    background-color: var(--bg-tile);
+    color: var(--namebg-right);
 }
 
 .text-list {
@@ -61,6 +68,9 @@ body {
     font-weight: 700;
     font-style: normal;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .main-text::before {
@@ -87,6 +97,24 @@ body {
     position: absolute;
     border-radius: 8px;
     z-index: -3;
+}
+
+.anki-button {
+    font-size: 20px;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    width: 200px;
+    align-self: flex-end;
+    background-color: var(--namebg-right);
+    color: var(--font-color);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.anki-button:hover {
+    background-color: var(--bg-tile);
+    color: var(--char-name-color);
 }
 
 .char-name {
@@ -240,7 +268,6 @@ body {
     overflow-y: scroll;
     pointer-events: auto;
     background-color:rgba(255, 255, 255, .5);
-    padding: 40px;
     margin-top: 20px;
     margin-bottom: 20px;
     opacity: 0;
