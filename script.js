@@ -30260,6 +30260,9 @@ let searchResultsLimit = 10;
 let initial = false;
 let isAnkiConnectConfigured = false;
 
+let ankiConnectAcknowledged = localStorage.getItem('ankiConnectAcknowledged') ? localStorage.getItem('ankiConnectAcknowledged') : false;
+let isAnkiConnectDisabled = localStorage.getItem('isAnkiConnectDisabled') ? localStorage.getItem('isAnkiConnectDisabled') : false;
+
 // Check for query parameters
 let queryParams = new URLSearchParams(window.location.search);
 // If visiting without query params, set initial var
@@ -30394,11 +30397,49 @@ window.addEventListener("scroll", event => {
     }
 })
 
+document.getElementById("acknowledgeAnkiConnectButton").addEventListener("click", event => {
+    acknowledgeAnkiConnectDialogue();
+});
+
+document.getElementById("disableAnkiConnectButton").addEventListener("click", event => {
+    disableAnkiConnect();
+});
+
+if (!ankiConnectAcknowledged) {
+    showAnkiConnectDialogue();
+}
+
+
+function showAnkiConnectDialogue() {
+    const dialogue = document.getElementById("ankiConnectDialogue");
+    dialogue.visibility = "visible";
+    dialogue.style.opacity = 1;
+}
+
+function hideAnkiConnectDialogue() {
+    const dialogue = document.getElementById("ankiConnectDialogue");
+    dialogue.style.opacity = 0;
+    setTimeout(() => {
+        dialogue.visibility = "hidden";
+    }, 600)
+}
+
+function acknowledgeAnkiConnectDialogue() {
+    ankiConnectAcknowledged = true;
+    window.localStorage.setItem('ankiConnectAcknowledged', true);
+    hideAnkiConnectDialogue();
+}
+
+function disableAnkiConnect() {
+    isAnkiConnectDisabled = true;
+    window.localStorage.setItem('isAnkiConnectDisabled', true);
+    acknowledgeAnkiConnectDialogue();
+}
+
 function debounce(timeout, delay, callback) {
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(callback(), delay)
 }
-
 
 function changePage(pageNum, withButton=false, scrollToTop=false) {
     // Remove anything in the current text container
@@ -30460,27 +30501,30 @@ function showLines(currentLineArray) {
         const charText = document.createElement("div");
         charText.classList.add("char-text");
         charText.innerHTML = line.text;
+        
         textContainer.addEventListener('mouseup', event => {
-            event.stopPropagation();
-            if (event.target.tagName !== "BUTTON") {
-                let ankiButtons = [...document.querySelectorAll('.anki-button')];
-                if (ankiButtons.length > 0) {
-                    ankiButtons.forEach(ankiButton => {
-                        ankiButton.remove();
-                    })
-                }
-                const currentlySelectedText = window.getSelection().toString();
-
-                // Create button for anki connect
-                if (currentlySelectedText) {
-                    const ankiButton = document.createElement("button");
-                    ankiButton.classList.add("anki-button");
-                    ankiButton.innerHTML = "Create Anki Card";
-                    mainText.appendChild(ankiButton);
-                    ankiButton.addEventListener('click', event => {
-                        event.stopPropagation();
-                        createAnkiCard(currentlySelectedText, line.text);
-                    });
+            if (!isAnkiConnectDisabled) {
+                event.stopPropagation();
+                if (event.target.tagName !== "BUTTON") {
+                    let ankiButtons = [...document.querySelectorAll('.anki-button')];
+                    if (ankiButtons.length > 0) {
+                        ankiButtons.forEach(ankiButton => {
+                            ankiButton.remove();
+                        })
+                    }
+                    const currentlySelectedText = window.getSelection().toString();
+    
+                    // Create button for anki connect
+                    if (currentlySelectedText) {
+                        const ankiButton = document.createElement("button");
+                        ankiButton.classList.add("anki-button");
+                        ankiButton.innerHTML = "Create Anki Card";
+                        mainText.appendChild(ankiButton);
+                        ankiButton.addEventListener('click', event => {
+                            event.stopPropagation();
+                            createAnkiCard(currentlySelectedText, line.text);
+                        });
+                    }
                 }
             }
         })
