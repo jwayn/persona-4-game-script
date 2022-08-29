@@ -30475,9 +30475,6 @@ function showLines(currentLineArray) {
                     mainText.appendChild(ankiButton);
                     ankiButton.addEventListener('click', event => {
                         event.stopPropagation();
-                        console.log("Button clicked");
-                        console.log(line.text)
-                        console.log(currentlySelectedText);
                         createAnkiCard(currentlySelectedText, line.text);
                     });
                 }
@@ -30690,9 +30687,12 @@ async function createAnkiModel() {
 }
 
 async function createAnkiCard(word, sentence) {
-    if(!doesAnkiDeckExist()) createAnkiDeck();
-    if(!doesAnkiModelExist()) createAnkiModel();
-    if (!isAnkiConnectConfigured) return;
+    if (!doesAnkiDeckExist()) {
+        createAnkiDeck();
+    }
+    if (!doesAnkiModelExist()) {
+        createAnkiModel();
+    }
     sentence = sentence.replace(word, `<b>${word}</b>`);
     const response = await fetch(ankiConnectURL, {
         method: "POST",
