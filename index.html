@@ -22,17 +22,7 @@
         <input id="textSearch" class="text-search" type="text" placeholder="Search for a word">
         <div id="searchResults" class="search-results-container"></div>
     </div>
-
     <div class="pagination">
-        <!-- <div class="page-controls">
-            <div class="page-move page-left">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 9V8l-4 4 4 4v-3h4v-2h-4z"/></svg>
-            </div>
-            <div class="page-move page-right">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 9H8v2h4v3l4-4-4-4v3z"/></svg>
-            </div>
-        </div> -->
-
         <nav class="pagination-controls-container">
             <div class="pagination-controls">
                 <button id="btnPageLeft"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M10.828 12l4.95 4.95-1.414 1.414L8 12l6.364-6.364 1.414 1.414z"/></svg></button>
@@ -40,35 +30,8 @@
                 <button id="btnPageRight"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/></svg></button>
             </div>
         </nav>
-        
     </div>
-    
     <div id="textContainer" class="text-list"></div>
-
-    <div id="ankiConnectDialogue" class="anki-connect-dialogue">
-        <h2>Note: </h2>
-        <p>AnkiConnect integration will not work unless you edit your AnkiConnect config to add the current domain to the "webCorsOriginList" array.</p>
-        <p>After editing, the AnkiConnect config should look similar to this:</p>
-        <pre>
-
-{
-    "apiKey": null,
-    "apiLogPath": null,
-    "ignoreOriginList": [],
-    "webBindAddress": "127.0.0.1",
-    "webBindPort": 8765,
-    "webCorsOriginList": [
-        "http://localhost",
-        "https://jwayn.github.io"
-    ]
-}
-        </pre>
-
-        <div class="buttons">
-            <button id="disableAnkiConnectButton">Disable AnkiConnect Integration</button>
-            <button id="acknowledgeAnkiConnectButton">Acknowledge</button>
-        </div>
-    </div>
     <script src="script.js"></script>
 </body>
 </html>
