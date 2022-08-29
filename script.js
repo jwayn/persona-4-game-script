@@ -30259,8 +30259,7 @@ let searchResultsLimit = 10;
 let initial = false;
 let isAnkiConnectConfigured = false;
 
-let ankiConnectAcknowledged = localStorage.getItem('ankiConnectAcknowledged') ? localStorage.getItem('ankiConnectAcknowledged') : false;
-let isAnkiConnectDisabled = localStorage.getItem('isAnkiConnectDisabled') ? localStorage.getItem('isAnkiConnectDisabled') : false;
+let ankiPermissionGranted = localStorage.getItem('ankiPermissionGranted') ? localStorage.getItem('ankiPermissionGranted') : false;
 
 // Check for query parameters
 let queryParams = new URLSearchParams(window.location.search);
@@ -30396,45 +30395,6 @@ window.addEventListener("scroll", event => {
     }
 })
 
-document.getElementById("acknowledgeAnkiConnectButton").addEventListener("click", event => {
-    acknowledgeAnkiConnectDialogue();
-});
-
-document.getElementById("disableAnkiConnectButton").addEventListener("click", event => {
-    disableAnkiConnect();
-});
-
-if (!ankiConnectAcknowledged) {
-    showAnkiConnectDialogue();
-}
-
-
-function showAnkiConnectDialogue() {
-    const dialogue = document.getElementById("ankiConnectDialogue");
-    dialogue.style.display = "block";
-    dialogue.style.opacity = 1;
-}
-
-function hideAnkiConnectDialogue() {
-    const dialogue = document.getElementById("ankiConnectDialogue");
-    dialogue.style.opacity = 0;
-    setTimeout(() => {
-        dialogue.style.display = "none";
-    }, 600)
-}
-
-function acknowledgeAnkiConnectDialogue() {
-    ankiConnectAcknowledged = true;
-    window.localStorage.setItem('ankiConnectAcknowledged', true);
-    hideAnkiConnectDialogue();
-}
-
-function disableAnkiConnect() {
-    isAnkiConnectDisabled = true;
-    window.localStorage.setItem('isAnkiConnectDisabled', true);
-    acknowledgeAnkiConnectDialogue();
-}
-
 function debounce(timeout, delay, callback) {
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(callback(), delay)
@@ -30502,28 +30462,26 @@ function showLines(currentLineArray) {
         charText.innerHTML = line.text;
         
         textContainer.addEventListener('mouseup', event => {
-            if (!isAnkiConnectDisabled) {
-                event.stopPropagation();
-                if (event.target.tagName !== "BUTTON") {
-                    let ankiButtons = [...document.querySelectorAll('.anki-button')];
-                    if (ankiButtons.length > 0) {
-                        ankiButtons.forEach(ankiButton => {
-                            ankiButton.remove();
-                        })
-                    }
-                    const currentlySelectedText = window.getSelection().toString();
-    
-                    // Create button for anki connect
-                    if (currentlySelectedText) {
-                        const ankiButton = document.createElement("button");
-                        ankiButton.classList.add("anki-button");
-                        ankiButton.innerHTML = "Create Anki Card";
-                        mainText.appendChild(ankiButton);
-                        ankiButton.addEventListener('click', event => {
-                            event.stopPropagation();
-                            createAnkiCard(currentlySelectedText, line.text);
-                        });
-                    }
+            event.stopPropagation();
+            if (event.target.tagName !== "BUTTON") {
+                let ankiButtons = [...document.querySelectorAll('.anki-button')];
+                if (ankiButtons.length > 0) {
+                    ankiButtons.forEach(ankiButton => {
+                        ankiButton.remove();
+                    })
+                }
+                const currentlySelectedText = window.getSelection().toString();
+
+                // Create button for anki connect
+                if (currentlySelectedText) {
+                    const ankiButton = document.createElement("button");
+                    ankiButton.classList.add("anki-button");
+                    ankiButton.innerHTML = "Create Anki Card";
+                    mainText.appendChild(ankiButton);
+                    ankiButton.addEventListener('click', event => {
+                        event.stopPropagation();
+                        createAnkiCard(currentlySelectedText, line.text);
+                    });
                 }
             }
         })
@@ -30618,7 +30576,33 @@ function clearSearchResults() {
     document.getElementById("searchResults").style.opacity = 0;
 }
 
+async function getAnkiPermissions() {
+    const response = await fetch(ankiConnectURL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+            "action": "requestPermission",
+            "version": 6
+        })
+    });
+    if (response.ok) {
+        const jsonRes = await rawDecks.json();
+
+        if (jsonRes.result.permission === "granted" && jsonRes.result.requireApiKey === false) {
+            ankiPermissionGranted = true;
+            localStorage.setItem('ankiPermissionGranted', true);
+            isAnkiConnectConfigured = true;
+        }
+    } else {
+        isAnkiConnectConfigured = false;
+        return false;
+    } 
+}
+
 async function doesAnkiDeckExist() {
+    if (!ankiPermissionGranted) {
+        getAnkiPermissions();
+    }
     const rawDecks = await fetch(ankiConnectURL, {
         method: "POST",
         mode: "cors",
@@ -30629,7 +30613,6 @@ async function doesAnkiDeckExist() {
     });
     if (rawDecks.ok) {
         const decks = await rawDecks.json();
-        isAnkiConnectConfigured = true;
         return decks.result.includes(ankiDeckName) ? true : false;
     } else {
         isAnkiConnectConfigured = false;
