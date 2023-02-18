@@ -19,7 +19,6 @@
     padding: 0;
     text-decoration: none;
     box-sizing: border-box;
-    font-size: 38px;
     line-height: 1.125;
 }
 
@@ -129,6 +128,15 @@ body {
     position: absolute;
     top: -45px;
     color: var(--char-name-color);
+    font-size: 2rem;
+}
+
+.char-name:has(.migaku-sentence) {
+    top: -65px;
+}
+
+.char-text {
+    font-size: 2rem;
 }
 
 .char-image {
@@ -164,7 +172,7 @@ body {
     color: var(--char-name-color);
     pointer-events: auto;
     transition: all .15s ease-in-out;
-    transform: translateY(50px);
+    transform: translateY(40px);
     display: flex;
     justify-content: space-between;
     align-items: center;
