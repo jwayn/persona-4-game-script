@@ -1,5 +1,5 @@
 # persona-4-game-script
-A slightly interactive game script for Persona 4.
+A slightly interactive game script for Persona 4 that can be viewed at https://jwayn.github.io/persona-4-game-script/
 
 This tool was created to make it easier and more entertaining for students of Japanese to search through the Persona 4 game script.
 
